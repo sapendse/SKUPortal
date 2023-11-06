@@ -1,0 +1,27 @@
+﻿@page "/"
+@using SKUPortal.BusinessLayer.Stores;
+@using SKUPortal.Model;
+@using SKUPortal.WebApp.Pages.Components
+
+<PageTitle>Index</PageTitle>
+
+@inject ICreateStoreRepresentationRepo CreateStoreRepresentationRepo
+
+<h1>Welcome to the Shelf Layout Visualization and Modification Tool</h1>
+
+@if (store != null && store.Cabinets.Count > 0)
+{
+	foreach (var cabinet in store.Cabinets)
+	{
+		<Cabinet Store=store CurCabinet=cabinet />
+	}
+}
+
+@code {
+	private SKUStore store = new SKUStore();
+
+	protected override void OnParametersSet()
+	{
+		store = CreateStoreRepresentationRepo.ReadAndParseSampleData();
+	}
+}

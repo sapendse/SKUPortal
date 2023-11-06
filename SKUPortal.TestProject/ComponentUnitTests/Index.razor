@@ -1,0 +1,33 @@
+﻿@inherits BunitTestContext
+@using SKUPortal.BusinessLayer.DALInterfaces;
+@using SKUPortal.BusinessLayer.Stores;
+@using SKUPortal.BusinessLayer.Shelves;
+@using SKUPortal.DAL;
+@using SKUPortal.Model;
+@using SKUPortal.WebApp.Pages
+
+
+@code {
+	[Test]
+	public void IndexPageRendersCorrectly()
+	{
+		// Setup
+		Services.AddSingleton<ICreateStoreRepresentationRepo>
+			(new CreateStoreRepresentationRepo(new StoreRepository()));
+		CabinetRepository cabinetRepo = new CabinetRepository();
+		Services.AddSingleton<ICabinetRepository>(cabinetRepo);
+		Services.AddSingleton<IAddSKUDrinkRepo>(new AddSKUDrinkRepo(cabinetRepo));
+		Services.AddSingleton<IRemoveSKUDrinkRepo>(new RemoveSKUDrinkRepo(cabinetRepo));
+		Services.AddSingleton<IMoveSKUDrinkRepo>(new MoveSKUDrinkRepo(cabinetRepo));
+
+		// Act
+		var cut = Render(@<Index />);
+
+		// Assert
+		cut.Markup.Contains("<h1>Welcome to the Shelf Layout Visualization and Modification Tool</h1>");
+		var tableTags = cut.FindAll("table");
+		Assert.AreEqual(tableTags.Count, 3);
+		var trTags = cut.FindAll("tr");
+		Assert.AreEqual(trTags.Count, 12);
+	}
+}

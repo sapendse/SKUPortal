@@ -1,0 +1,28 @@
+﻿@using SKUPortal.Model;
+
+<tr class="row-@CurRow.Number">
+	@if (CurRow != null && CurRow.Lanes.Count > 0)
+	{
+		foreach (var lane in CurRow.Lanes)
+		{
+			<Lane Store=Store CurRow=CurRow CurLane=lane MoveDrinkInfo=MoveDrinkInfo OnMoveSelect=OnSelectingMove />
+		}
+	}
+</tr>
+
+@code {
+	[Parameter]
+	public SKUStore Store { get; set; }
+	[Parameter]
+	public SKURow CurRow { get; set; }
+	[Parameter]
+	public SKUMoveDrinkInfo MoveDrinkInfo { get; set; }
+	[Parameter]
+	public EventCallback<SKUMoveDrinkInfo> OnMoveSelect { get; set; }
+
+	private async void OnSelectingMove(SKUMoveDrinkInfo moveDrinkInfo)
+	{
+		MoveDrinkInfo = moveDrinkInfo;
+		OnMoveSelect.InvokeAsync(MoveDrinkInfo);
+	}
+}

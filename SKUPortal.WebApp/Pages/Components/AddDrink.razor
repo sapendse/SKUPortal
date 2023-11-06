@@ -1,0 +1,19 @@
+﻿@using SKUPortal.BusinessLayer.Shelves;
+@using SKUPortal.Model;
+
+@inject IAddSKUDrinkRepo AddSKUDrinkRepo
+
+<button @onclick="() => AddSKUDrink()">+</button>
+
+@code {
+	[Parameter]
+	public EventCallback<SKULane> OnDrinkAdd { get; set; }
+
+	[Parameter]
+	public SKULane curLane { get; set; } = new SKULane();
+
+	protected void AddSKUDrink()
+	{
+		OnDrinkAdd.InvokeAsync(curLane);
+	}
+}

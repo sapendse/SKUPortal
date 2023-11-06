@@ -1,0 +1,32 @@
+﻿@inherits BunitTestContext
+@using SKUPortal.BusinessLayer.DALInterfaces;
+@using SKUPortal.BusinessLayer.Stores;
+@using SKUPortal.BusinessLayer.Shelves;
+@using SKUPortal.DAL;
+@using SKUPortal.Model;
+@using SKUPortal.WebApp.Pages
+@using SKUPortal.WebApp.Pages.Components
+
+@code {
+	[Test]
+	public void IndexPageRendersCorrectly()
+	{
+		// Setup
+		StoreRepository storeRepo = new StoreRepository();
+		SKUStore store = storeRepo.ReadAndParseSampleData();
+		Services.AddSingleton<ICreateStoreRepresentationRepo>
+			(new CreateStoreRepresentationRepo(storeRepo));
+		CabinetRepository cabinetRepo = new CabinetRepository();
+		Services.AddSingleton<ICabinetRepository>(cabinetRepo);
+		Services.AddSingleton<IAddSKUDrinkRepo>(new AddSKUDrinkRepo(cabinetRepo));
+		Services.AddSingleton<IRemoveSKUDrinkRepo>(new RemoveSKUDrinkRepo(cabinetRepo));
+		Services.AddSingleton<IMoveSKUDrinkRepo>(new MoveSKUDrinkRepo(cabinetRepo));
+
+		// Act
+		var cut = Render(@<Lane Store=store CurLane=store.Cabinets[0].Rows[0].Lanes[0] />);
+
+		// Assert
+		var bottomLeftCabinet1LabelTagText = cut.Find("label").TextContent;
+		Assert.IsTrue(bottomLeftCabinet1LabelTagText.Contains("O-i green tea 2000ml"));
+	}
+}

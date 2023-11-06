@@ -1,0 +1,13 @@
+﻿.img-sku {
+    width: 150px;
+    height: 150px;
+    object-fit: scale-down;
+}
+
+td {
+    max-width: 250px;
+}
+
+label {
+    word-wrap: break-word;
+}

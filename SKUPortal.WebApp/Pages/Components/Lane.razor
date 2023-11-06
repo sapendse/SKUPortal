@@ -1,0 +1,90 @@
+﻿@using SKUPortal.Model;
+@using SKUPortal.BusinessLayer.Shelves;
+
+@inject IAddSKUDrinkRepo AddSKUDrinkRepo
+@inject IRemoveSKUDrinkRepo RemoveSKUDrinkRepo
+@inject IMoveSKUDrinkRepo MoveSKUDrinkRepo
+
+@if(CurLane != null)
+{
+	var drink = Store.DrinkInventory.FirstOrDefault(x => x.JanCode == CurLane.JanCode);
+	<td>
+		<div class="thumbnail">
+			<img id="lane-@CurLane.JanCode" class="img-thumbnail img-sku" src="@drink.ProductImageUrl" alt="@drink.DrinkName" />
+			<div class="@highlightClass(CurLane)">
+				<label>@drink.DrinkName - @CurLane.Quantity Units</label>
+			</div>
+			<AddDrink curLane=CurLane OnDrinkAdd="OnAddingDrink" />
+			<RemoveDrink curLane=CurLane OnDrinkRemove="OnRemovingDrink" />
+			<button @onclick="() => { SelectForMoving(CurRow, CurLane); OnSelectingMove(); }">Move</button>
+		</div>
+	</td>
+}
+
+@code {
+	[Parameter]
+	public SKUStore Store { get; set; }
+	[Parameter]
+	public SKURow CurRow { get; set; }
+	[Parameter]
+	public SKULane CurLane { get; set; }
+	[Parameter]
+	public SKUMoveDrinkInfo MoveDrinkInfo { get; set; }
+	[Parameter]
+	public EventCallback<SKUMoveDrinkInfo> OnMoveSelect { get; set; }
+
+	private List<SKULane> selectedDrink = new List<SKULane>();
+	private string highlightClass(SKULane lane) => selectedDrink.Any(i => i == lane) ? "bg-primary" : string.Empty;
+
+	private async Task<SKULane> OnAddingDrink(SKULane curLane)
+	{
+		return await AddSKUDrinkRepo.AddSkuDrink(curLane);
+	}
+
+	private async Task<SKULane> OnRemovingDrink(SKULane curLane)
+	{
+		return await RemoveSKUDrinkRepo.RemoveSkuDrink(curLane);
+	}
+
+	private async void OnSelectingMove()
+	{
+		OnMoveSelect.InvokeAsync(MoveDrinkInfo);
+	}
+
+	protected SKUStore SelectForMoving(SKURow curRow, SKULane curLane)
+	{
+		MoveDrinkInfo.MoveAction = !MoveDrinkInfo.MoveAction;
+		if (MoveDrinkInfo.MoveAction)
+		{
+			MoveDrinkInfo.OriginalLane = curLane;
+			MoveDrinkInfo.OriginalRow = curRow;
+			selectedDrink.Add(curLane);
+			MoveDrinkInfo.MoveDrinkMessage = "Select another lane to move to";
+			MoveDrinkInfo.HideError = !MoveDrinkInfo.HideError;
+		}
+		else
+		{
+			MoveDrinkInfo.NewLane = curLane;
+			MoveDrinkInfo.NewRow = curRow;
+		}
+		if (MoveDrinkInfo.OriginalLane != null && MoveDrinkInfo.NewLane != null)
+		{
+			Store = MoveSKUDrinkRepo.MoveSkuDrink(Store, MoveDrinkInfo);
+			if (MoveDrinkInfo.MoveDrinkMessage == string.Empty)
+			{
+				MoveDrinkInfo.OriginalLane = null;
+				MoveDrinkInfo.NewLane = null;
+				MoveDrinkInfo.OriginalRow = null;
+				MoveDrinkInfo.NewRow = null;
+				MoveDrinkInfo.MoveAction = false;
+				selectedDrink.Clear();
+				MoveDrinkInfo.HideError = !MoveDrinkInfo.HideError;
+			}
+			else
+			{
+				MoveDrinkInfo.MoveAction = true;
+			}
+		}
+		return Store;
+	}
+}

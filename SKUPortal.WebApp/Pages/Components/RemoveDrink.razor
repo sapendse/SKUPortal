@@ -1,0 +1,19 @@
+﻿@using SKUPortal.BusinessLayer.Shelves;
+@using SKUPortal.Model;
+
+@inject IRemoveSKUDrinkRepo RemoveSKUDrinkRepo
+
+<button @onclick="() => RemoveSKUDrink()">-</button>
+
+@code {
+	[Parameter]
+	public EventCallback<SKULane> OnDrinkRemove { get; set; }
+
+	[Parameter]
+	public SKULane curLane { get; set; } = new SKULane();
+
+	protected void RemoveSKUDrink()
+	{
+		OnDrinkRemove.InvokeAsync(curLane);
+	}
+}

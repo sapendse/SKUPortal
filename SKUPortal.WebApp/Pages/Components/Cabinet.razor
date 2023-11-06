@@ -1,0 +1,41 @@
+﻿@using SKUPortal.Model;
+
+<p>Cabinet @CurCabinet.Number</p>
+<div id="responseMessage" class="bg-primary" hidden="@MoveDrinkInfo.HideError">@MoveDrinkInfo.MoveDrinkMessage</div>
+<table class="table cabinet-@CurCabinet.Number">
+	<tbody>
+		@if (CurCabinet != null && CurCabinet.Rows.Count > 0)
+		{
+			
+			for (int i = CurCabinet.Rows.Count - 1; i >= 0; i--)
+			{
+				SKURow curRow = CurCabinet.Rows[i];
+				<Row Store=Store CurRow=curRow MoveDrinkInfo=MoveDrinkInfo OnMoveSelect=OnSelectingMove />
+			}
+		}
+	</tbody>
+</table>
+
+@code {
+	[Parameter]
+	public SKUStore Store { get; set; }
+	[Parameter]
+	public SKUCabinet CurCabinet { get; set; }
+
+	private SKUMoveDrinkInfo MoveDrinkInfo { get; set; } = new SKUMoveDrinkInfo()
+		{
+			MoveAction = false,
+			HideError = true,
+			OriginalRow = null,
+			NewRow = null,
+			OriginalLane = null,
+			NewLane = null,
+			MoveDrinkMessage = string.Empty
+		};
+
+
+	private async void OnSelectingMove(SKUMoveDrinkInfo moveDrinkInfo)
+	{
+		this.MoveDrinkInfo = moveDrinkInfo;
+	}
+}
